@@ -57,7 +57,7 @@ export async function runWeeklyAgent(
     await logAgentEvent(supabase, kw, year, 'START', 'ok', `Starting agent for KW${kw}/${year}`)
 
     // Step 1: Parse email
-    const parsed = await parseEmail(emailText)
+    const parsed = await parseEmail(supabase, emailText)
     await logAgentEvent(supabase, kw, year, 'email_parse', 'ok', `Parsed ${parsed.length} employees`, {
       count: parsed.length,
     })

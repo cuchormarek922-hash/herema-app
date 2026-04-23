@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export interface ParsedAttendance {
   employee_id: string
@@ -7,7 +7,7 @@ export interface ParsedAttendance {
   hours: number
 }
 
-export async function parseEmail(emailText: string): Promise<ParsedAttendance[]> {
+export async function parseEmail(supabaseClient: SupabaseClient, emailText: string): Promise<ParsedAttendance[]> {
   const lines = emailText
     .split('\n')
     .map(line => line.trim())
@@ -30,7 +30,7 @@ export async function parseEmail(emailText: string): Promise<ParsedAttendance[]>
     const hours = parseFloat(match[2].replace(',', '.'))
 
     // Find employee by alias
-    const { data: alias } = await supabase
+    const { data: alias } = await supabaseClient
       .from('employee_aliases')
       .select('employee_id')
       .eq('surname_alias', surname)

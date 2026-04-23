@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing emailText' }, { status: 400 })
     }
 
-    const parsed = await parseEmail(emailText)
+    const parsed = await parseEmail(supabase, emailText)
     const { kw, year } = getCurrentKW()
 
     // Upsert to database
