@@ -41,7 +41,7 @@ export default function VyplatyPage() {
         .order('employees(surname)')
 
       if (error) throw error
-      setRecords(data || [])
+      setRecords((data || []) as PayrollRecord[])
       setSelected(new Set())
     } catch (error) {
       console.error('Error:', error)

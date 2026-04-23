@@ -38,7 +38,7 @@ export default function HodinovyPlanPage() {
         .order('employees(surname)')
 
       if (error) throw error
-      setRecords(data || [])
+      setRecords((data || []) as AttendanceRecord[])
     } catch (error) {
       console.error('Error:', error)
     } finally {
