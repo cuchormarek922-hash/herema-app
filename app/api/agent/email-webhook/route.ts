@@ -12,11 +12,6 @@ import { createClient } from '@supabase/supabase-js'
  * Add WEBHOOK_SECRET to Vercel env vars.
  */
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 function extractEmailText(body: Record<string, unknown>): string | null {
   // Postmark: { TextBody: "...", HtmlBody: "..." }
   if (typeof body.TextBody === 'string' && body.TextBody.trim()) {
@@ -38,9 +33,18 @@ function extractEmailText(body: Record<string, unknown>): string | null {
 }
 
 export async function POST(request: NextRequest) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
   // Verify shared secret from header (never put secrets in URLs — they appear in logs)
+  const webhookSecret = process.env.WEBHOOK_SECRET
+  if (!webhookSecret) {
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 503 })
+  }
   const secret = request.headers.get('x-webhook-secret')
-  if (!secret || secret !== process.env.WEBHOOK_SECRET) {
+  if (!secret || secret !== webhookSecret) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

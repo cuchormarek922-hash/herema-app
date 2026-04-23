@@ -13,24 +13,10 @@ function getField(row: Record<string, unknown>, ...keys: string[]): unknown {
 }
 
 export async function POST(request: NextRequest) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  console.log('[aliases] URL:', url?.slice(0, 40))
-  console.log('[aliases] SERVICE KEY length:', serviceKey?.length, '| end:', serviceKey?.slice(-10))
-  console.log('[aliases] ANON KEY length:', anonKey?.length)
-
-  // Test service role key
-  const supabaseService = createClient(url!, serviceKey!)
-  const { error: serviceErr } = await supabaseService.from('employees').select('id').limit(1)
-  console.log('[aliases] service ping:', serviceErr?.message ?? 'OK')
-
-  // Test anon key
-  const supabaseAnon = createClient(url!, anonKey!)
-  const { error: anonErr } = await supabaseAnon.from('employees').select('id').limit(1)
-  console.log('[aliases] anon ping:', anonErr?.message ?? 'OK')
-
-  const supabase = supabaseService
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 
   try {
     const formData = await request.formData()
