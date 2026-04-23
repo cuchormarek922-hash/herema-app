@@ -3,10 +3,6 @@ import * as XLSX from 'xlsx'
 import { createClient } from '@supabase/supabase-js'
 import { normalizeName } from '@/lib/nameResolver'
 
-interface AliasRow {
-  Alias_z_Emailu?: string
-  Oficialne_Meno?: string
-  'Ofici\u00e1lne_Meno'?: string   // with accent
   ID_Zamestnanca?: number
 }
 
