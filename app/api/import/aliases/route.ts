@@ -3,8 +3,7 @@ import * as XLSX from 'xlsx'
 import { createClient } from '@supabase/supabase-js'
 import { normalizeName } from '@/lib/nameResolver'
 
-  ID_Zamestnanca?: number
-}
+
 
 function getField(row: Record<string, unknown>, ...keys: string[]): unknown {
   for (const key of keys) {
