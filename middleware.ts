@@ -1,4 +1,4 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '@supabase/ssr'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function middleware(request: NextRequest) {
@@ -17,16 +17,34 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // createMiddlewareClient reads/writes auth cookies correctly
-  const res = NextResponse.next()
-  const supabase = createMiddlewareClient({ req: request, res })
+  let supabaseResponse = NextResponse.next({ request })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
   const { data: { session } } = await supabase.auth.getSession()
 
   if (!session) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  return res
+  return supabaseResponse
 }
 
 export const config = {
