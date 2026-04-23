@@ -86,7 +86,7 @@ export default function DashboardPage() {
           />
           <KPICard
             title="Aktívni zamestnanci"
-            value={data?.activeEmployees || '0'}
+            value={String(data?.activeEmployees ?? 0)}
           />
           <KPICard
             title="Status agenta"
