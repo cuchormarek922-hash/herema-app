@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { parseEmail } from '@/lib/parser'
-import { getCurrentKW } from '@/lib/parser'
+import { createClient } from '@/lib/server'
+import { parseEmail, getCurrentKW } from '@/lib/parser'
 
 export async function POST(request: NextRequest) {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   try {
     const body = await request.json()
     const { emailText } = body
@@ -19,7 +19,6 @@ export async function POST(request: NextRequest) {
     const parsed = await parseEmail(supabase, emailText)
     const { kw, year } = getCurrentKW()
 
-    // Upsert to database
     const { error: upsertError } = await supabase.from('weekly_attendance').upsert(
       parsed.map(p => ({
         kw: p.kw,
@@ -34,30 +33,16 @@ export async function POST(request: NextRequest) {
       throw new Error(`Failed to save: ${upsertError.message}`)
     }
 
-    // Fetch saved records with employee data
     const { data: saved } = await supabase
       .from('weekly_attendance')
       .select('*, employees(surname, group)')
       .eq('kw', kw)
       .eq('year', year)
 
-    return NextResponse.json({
-      success: true,
-      parsed: parsed.length,
-      saved: saved || [],
-      kw,
-      year,
-    })
+    return NextResponse.json({ success: true, parsed: parsed.length, saved: saved || [], kw, year })
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     console.error('Parse error:', message)
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: message,
-      },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }

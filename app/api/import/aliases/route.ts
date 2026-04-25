@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import * as XLSX from 'xlsx'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createServerClient } from '@/lib/server'
 import { normalizeName } from '@/lib/nameResolver'
 
 
@@ -13,6 +14,9 @@ function getField(row: Record<string, unknown>, ...keys: string[]): unknown {
 }
 
 export async function POST(request: NextRequest) {
+  const { data: { user } } = await (await createServerClient()).auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
