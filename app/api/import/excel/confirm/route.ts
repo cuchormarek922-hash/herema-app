@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { createClient as createServerClient } from '@/lib/server'
 import { NameResolver } from '@/lib/nameResolver'
 
 interface Employee {
@@ -75,6 +76,9 @@ async function createEmployee(supabase: SupabaseClient, emp: Employee): Promise<
 }
 
 export async function POST(request: NextRequest) {
+  const { data: { user } } = await (await createServerClient()).auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!

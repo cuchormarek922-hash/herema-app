@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/client'
+
+const supabase = createClient()
 
 interface Employee {
   id: string

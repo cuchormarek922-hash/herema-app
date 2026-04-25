@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/client'
+
+const supabase = createClient()
 
 export default function SetPasswordPage() {
   const router = useRouter()
